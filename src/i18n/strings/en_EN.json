@@ -2973,7 +2973,11 @@
             "message_search_unsupported_web": "%(brand)s can't securely cache encrypted messages locally while running in a web browser. Use <desktopLink>%(brand)s Desktop</desktopLink> for encrypted messages to appear in search results.",
             "record_session_details": "Record the client name, version, and url to recognise sessions more easily in session manager",
             "send_analytics": "Send analytics data",
-            "strict_encryption": "Only send messages to verified users"
+            "strict_encryption": "Only send messages to verified users",
+            "tokenizer_mode": "Search tokenizer mode",
+            "tokenizer_mode_description": "N-gram mode provides better search results for languages without clear word boundaries. Changing this setting will rebuild your search index.",
+            "tokenizer_mode_language": "Language-based (English, German, etc.)",
+            "tokenizer_mode_ngram": "N-gram (Japanese, Chinese, Korean, etc.)"
         },
         "send_read_receipts": "Send read receipts",
         "send_read_receipts_unsupported": "Your server doesn't support disabling sending read receipts.",
