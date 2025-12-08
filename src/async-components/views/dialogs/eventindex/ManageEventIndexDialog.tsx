@@ -46,6 +46,9 @@ interface IState {
 
     /** Time to sleep between crawlwer passes, in milliseconds. */
     crawlerSleepTime: number;
+
+    /** Tokenizer mode for search indexing. */
+    tokenizerMode: string;
 }
 
 /*
@@ -63,6 +66,7 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
             roomCount: 0,
             currentRoom: null,
             crawlerSleepTime: SettingsStore.getValueAt(SettingLevel.DEVICE, "crawlerSleepTime"),
+            tokenizerMode: SettingsStore.getValueAt(SettingLevel.DEVICE, "tokenizerMode"),
         };
     }
 
@@ -125,6 +129,11 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
         SettingsStore.setValue("crawlerSleepTime", null, SettingLevel.DEVICE, e.target.value);
     };
 
+    private onTokenizerModeChange = (e: ChangeEvent<HTMLSelectElement>): void => {
+        this.setState({ tokenizerMode: e.target.value });
+        SettingsStore.setValue("tokenizerMode", null, SettingLevel.DEVICE, e.target.value);
+    };
+
     public render(): React.ReactNode {
         const brand = SdkConfig.get().brand;
 
@@ -165,6 +174,18 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
                         value={this.state.crawlerSleepTime.toString()}
                         onChange={this.onCrawlerSleepTimeChange}
                     />
+                    <Field
+                        element="select"
+                        label={_t("settings|security|tokenizer_mode")}
+                        value={this.state.tokenizerMode}
+                        onChange={this.onTokenizerModeChange}
+                    >
+                        <option value="ngram">{_t("settings|security|tokenizer_mode_ngram")}</option>
+                        <option value="language">{_t("settings|security|tokenizer_mode_language")}</option>
+                    </Field>
+                    <div className="mx_SettingsTab_subsectionText">
+                        {_t("settings|security|tokenizer_mode_description")}
+                    </div>
                 </div>
             </div>
         );

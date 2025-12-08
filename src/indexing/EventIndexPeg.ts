@@ -78,9 +78,10 @@ export class EventIndexPeg {
 
         const userId = client.getUserId()!;
         const deviceId = client.getDeviceId()!;
+        const tokenizerMode = SettingsStore.getValueAt(SettingLevel.DEVICE, "tokenizerMode");
 
         try {
-            await indexManager.initEventIndex(userId, deviceId);
+            await indexManager.initEventIndex(userId, deviceId, tokenizerMode);
 
             const userVersion = await indexManager.getUserVersion();
             const eventIndexIsEmpty = await indexManager.isEventIndexEmpty();
@@ -91,7 +92,7 @@ export class EventIndexPeg {
                 await indexManager.closeEventIndex();
                 await this.deleteEventIndex();
 
-                await indexManager.initEventIndex(userId, deviceId);
+                await indexManager.initEventIndex(userId, deviceId, tokenizerMode);
                 await indexManager.setUserVersion(INDEX_VERSION);
             }
 
