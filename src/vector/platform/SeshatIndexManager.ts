@@ -28,7 +28,7 @@ export class SeshatIndexManager extends BaseEventIndexManager {
         return this.ipc.call("supportsEventIndexing");
     }
 
-    public async initEventIndex(userId: string, deviceId: string, tokenizerMode?: string): Promise<void> {
+    public async initEventIndex(userId: string, deviceId: string, tokenizerMode?: string): Promise<{ wasRecreated?: boolean } | void> {
         return this.ipc.call("initEventIndex", userId, deviceId, tokenizerMode);
     }
 

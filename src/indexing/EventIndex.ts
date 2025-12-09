@@ -65,6 +65,8 @@ export default class EventIndex extends EventEmitter {
     private crawlerCheckpoints: ICrawlerCheckpoint[] = [];
     private crawler: ICrawler | null = null;
     private currentCheckpoint: ICrawlerCheckpoint | null = null;
+    // Flag to force adding initial checkpoints (e.g., after database recreation)
+    private forceAddInitialCheckpoints = false;
 
     public async init(): Promise<void> {
         const indexManager = PlatformPeg.get()?.getEventIndexingManager();
@@ -74,6 +76,14 @@ export default class EventIndex extends EventEmitter {
         logger.log("EventIndex: Loaded checkpoints", this.crawlerCheckpoints);
 
         this.registerListeners();
+    }
+
+    /**
+     * Mark that initial checkpoints should be added on next sync.
+     * This is used when the database is recreated (e.g., schema change).
+     */
+    public setForceAddInitialCheckpoints(force: boolean): void {
+        this.forceAddInitialCheckpoints = force;
     }
 
     /**
@@ -179,7 +189,10 @@ export default class EventIndex extends EventEmitter {
             // first time with indexing support or running it with an
             // initial sync. Add checkpoints to crawl our encrypted rooms.
             const eventIndexWasEmpty = await indexManager.isEventIndexEmpty();
-            if (eventIndexWasEmpty) await this.addInitialCheckpoints();
+            if (eventIndexWasEmpty || this.forceAddInitialCheckpoints) {
+                await this.addInitialCheckpoints();
+                this.forceAddInitialCheckpoints = false;
+            }
 
             this.startCrawler();
             return;
@@ -983,7 +996,7 @@ export default class EventIndex extends EventEmitter {
         };
 
         const encryptedRooms = rooms.filter(isRoomEncrypted);
-        encryptedRooms.forEach((room, index) => {
+        encryptedRooms.forEach((room) => {
             totalRooms.add(room.roomId);
         });
 

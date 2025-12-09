@@ -77,9 +77,9 @@ export default abstract class BaseEventIndexManager {
      * @param {string} tokenizerMode The tokenizer mode to use ("ngram" or "language")
      *
      * @return {Promise} A promise that will resolve when the event index is
-     * initialized.
+     * initialized. Returns { wasRecreated: true } if the database was recreated.
      */
-    public async initEventIndex(userId: string, deviceId: string, tokenizerMode?: string): Promise<void> {
+    public async initEventIndex(userId: string, deviceId: string, tokenizerMode?: string): Promise<{ wasRecreated?: boolean } | void> {
         throw new Error("Unimplemented");
     }
 
