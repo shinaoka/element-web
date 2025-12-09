@@ -175,6 +175,31 @@ async function localSearch(
         throw new Error("Local search failed");
     }
 
+    // Fix: Remove state_key: null from Seshat results to prevent isState() returning true
+    // Seshat includes "state_key": null for non-state events, which causes matrix-js-sdk
+    // to incorrectly treat them as state events
+    if (localResult.results) {
+        for (const searchResult of localResult.results) {
+            const event = searchResult.result as Record<string, unknown>;
+            if (event && event.state_key === null) {
+                delete event.state_key;
+            }
+            // Also fix context events
+            if (searchResult.context) {
+                for (const ctxEvent of searchResult.context.events_before || []) {
+                    if (ctxEvent && (ctxEvent as Record<string, unknown>).state_key === null) {
+                        delete (ctxEvent as Record<string, unknown>).state_key;
+                    }
+                }
+                for (const ctxEvent of searchResult.context.events_after || []) {
+                    if (ctxEvent && (ctxEvent as Record<string, unknown>).state_key === null) {
+                        delete (ctxEvent as Record<string, unknown>).state_key;
+                    }
+                }
+            }
+        }
+    }
+
     searchArgs.next_batch = localResult.next_batch;
 
     const result = {
