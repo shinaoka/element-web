@@ -49,6 +49,9 @@ interface IState {
 
     /** Tokenizer mode for search indexing. */
     tokenizerMode: string;
+
+    /** Initial tokenizer mode when dialog was opened. */
+    initialTokenizerMode: string;
 }
 
 /*
@@ -58,6 +61,7 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
     public constructor(props: IProps) {
         super(props);
 
+        const initialTokenizerMode = SettingsStore.getValueAt(SettingLevel.DEVICE, "tokenizerMode");
         this.state = {
             eventIndexSize: 0,
             eventCount: 0,
@@ -66,7 +70,8 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
             roomCount: 0,
             currentRoom: null,
             crawlerSleepTime: SettingsStore.getValueAt(SettingLevel.DEVICE, "crawlerSleepTime"),
-            tokenizerMode: SettingsStore.getValueAt(SettingLevel.DEVICE, "tokenizerMode"),
+            tokenizerMode: initialTokenizerMode,
+            initialTokenizerMode: initialTokenizerMode,
         };
     }
 
@@ -131,7 +136,37 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
 
     private onTokenizerModeChange = (e: ChangeEvent<HTMLSelectElement>): void => {
         this.setState({ tokenizerMode: e.target.value });
-        SettingsStore.setValue("tokenizerMode", null, SettingLevel.DEVICE, e.target.value);
+        // Don't save to settings yet - wait for Done button
+    };
+
+    private onDone = async (): Promise<void> => {
+        // Check if tokenizer mode has changed
+        if (this.state.tokenizerMode !== this.state.initialTokenizerMode) {
+            // Show confirmation dialog
+            const ConfirmTokenizerChangeDialog = (await import("./ConfirmTokenizerChangeDialog")).default;
+            Modal.createDialog(
+                ConfirmTokenizerChangeDialog,
+                {
+                    onFinished: async (confirmed?: boolean) => {
+                        if (confirmed) {
+                            // Save the tokenizer mode setting
+                            SettingsStore.setValue("tokenizerMode", null, SettingLevel.DEVICE, this.state.tokenizerMode);
+                        } else {
+                            // User cancelled - revert tokenizer mode to initial value
+                            this.setState({ tokenizerMode: this.state.initialTokenizerMode });
+                            SettingsStore.setValue("tokenizerMode", null, SettingLevel.DEVICE, this.state.initialTokenizerMode);
+                        }
+                        this.props.onFinished();
+                    },
+                },
+                undefined,
+                /* priority = */ false,
+                /* static = */ true,
+            );
+        } else {
+            // No change, just close the dialog
+            this.props.onFinished();
+        }
     };
 
     public render(): React.ReactNode {
@@ -199,7 +234,7 @@ export default class ManageEventIndexDialog extends React.Component<IProps, ISta
                 {eventIndexingSettings}
                 <DialogButtons
                     primaryButton={_t("action|done")}
-                    onPrimaryButtonClick={this.props.onFinished}
+                    onPrimaryButtonClick={this.onDone}
                     primaryButtonClass="primary"
                     cancelButton={_t("action|disable")}
                     onCancel={this.onDisable}
