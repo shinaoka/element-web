@@ -176,28 +176,40 @@ async function localSearch(
     }
 
     // Fix Seshat search results for proper rendering
-    // Only fix state_key: null issue - Seshat includes "state_key": null for non-state events,
-    // which causes matrix-js-sdk to incorrectly treat them as state events
     if (localResult.results) {
         for (const searchResult of localResult.results) {
             const event = searchResult.result as unknown as Record<string, unknown>;
+            // Fix state_key: null issue - Seshat includes "state_key": null for non-state events,
+            // which causes matrix-js-sdk to incorrectly treat them as state events
             if (event && "state_key" in event && event.state_key === null) {
                 delete event.state_key;
             }
             // Also fix context events
             if (searchResult.context) {
-                for (const ctxEvent of searchResult.context.events_before || []) {
+                // Helper to check if an event is an edit (m.replace) event
+                const isEditEvent = (ev: Record<string, unknown>): boolean => {
+                    const content = ev.content as Record<string, unknown> | undefined;
+                    const relatesTo = content?.["m.relates_to"] as Record<string, unknown> | undefined;
+                    return relatesTo?.rel_type === "m.replace";
+                };
+
+                // Fix state_key: null and filter out edit events from context
+                // Edit events in context would show as confusing "previous messages"
+                // when they're actually just edit history of the same message
+                searchResult.context.events_before = (searchResult.context.events_before || []).filter((ctxEvent) => {
                     const ev = ctxEvent as unknown as Record<string, unknown>;
                     if (ev && "state_key" in ev && ev.state_key === null) {
                         delete ev.state_key;
                     }
-                }
-                for (const ctxEvent of searchResult.context.events_after || []) {
+                    return !isEditEvent(ev);
+                });
+                searchResult.context.events_after = (searchResult.context.events_after || []).filter((ctxEvent) => {
                     const ev = ctxEvent as unknown as Record<string, unknown>;
                     if (ev && "state_key" in ev && ev.state_key === null) {
                         delete ev.state_key;
                     }
-                }
+                    return !isEditEvent(ev);
+                });
             }
         }
     }
