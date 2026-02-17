@@ -18,6 +18,7 @@ import {
     type MatrixClient,
     type SearchResult,
 } from "matrix-js-sdk/src/matrix";
+import { type IEventWithRoomId } from "matrix-js-sdk/src/@types/search";
 
 import { type ISearchArgs } from "./indexing/BaseEventIndexManager";
 import EventIndexPeg from "./indexing/EventIndexPeg";
@@ -179,17 +180,17 @@ async function localSearch(
     // which causes matrix-js-sdk to incorrectly treat them as state events
     if (localResult.results) {
         for (const searchResult of localResult.results) {
-            const event = searchResult.result as unknown as Record<string, unknown>;
-            if (event?.state_key === null) delete event.state_key;
+            const event = searchResult.result as IEventWithRoomId & { state_key?: unknown };
+            if (event.state_key === null) delete event.state_key;
             // Also fix context events
             if (searchResult.context) {
                 for (const ctxEvent of searchResult.context.events_before || []) {
-                    const ev = ctxEvent as unknown as Record<string, unknown>;
-                    if (ev?.state_key === null) delete ev.state_key;
+                    const ev = ctxEvent as IEventWithRoomId & { state_key?: unknown };
+                    if (ev.state_key === null) delete ev.state_key;
                 }
                 for (const ctxEvent of searchResult.context.events_after || []) {
-                    const ev = ctxEvent as unknown as Record<string, unknown>;
-                    if (ev?.state_key === null) delete ev.state_key;
+                    const ev = ctxEvent as IEventWithRoomId & { state_key?: unknown };
+                    if (ev.state_key === null) delete ev.state_key;
                 }
             }
         }
