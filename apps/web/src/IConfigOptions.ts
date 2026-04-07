@@ -71,6 +71,7 @@ export interface IConfigOptions {
     permalink_prefix?: string;
 
     update_base_url?: string;
+    disable_auto_update?: boolean;
     desktop_builds: {
         available: boolean;
         logo: string; // url

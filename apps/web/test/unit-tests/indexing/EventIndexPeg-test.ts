@@ -49,7 +49,7 @@ describe("EventIndexPeg", () => {
             expect(mockIndexingManager.initEventIndex).toHaveBeenCalledWith("@user:example.org", "DEVICE123", "ngram");
         });
 
-        it("passes language tokenizer mode by default", async () => {
+        it("passes ngram tokenizer mode by default", async () => {
             const mockIndexingManager = {
                 initEventIndex: jest.fn().mockResolvedValue(undefined),
                 getUserVersion: jest.fn().mockResolvedValue(1),
@@ -65,7 +65,7 @@ describe("EventIndexPeg", () => {
             } as any);
 
             jest.spyOn(SettingsStore, "getValueAt").mockImplementation((_level, settingName): any => {
-                if (settingName === "tokenizerMode") return "language";
+                if (settingName === "tokenizerMode") return "ngram";
                 if (settingName === "crawlerSleepTime") return 3000;
                 return undefined;
             });
@@ -76,7 +76,7 @@ describe("EventIndexPeg", () => {
             expect(mockIndexingManager.initEventIndex).toHaveBeenCalledWith(
                 "@user:example.org",
                 "DEVICE123",
-                "language",
+                "ngram",
             );
         });
 

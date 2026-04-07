@@ -609,7 +609,8 @@ The following are undocumented or intended for developer use only.
 ## Additional config options for Element Desktop
 
 1. `update_base_url`: Specifies the URL of the update server, see [document](https://github.com/element-hq/element-web/blob/develop/apps/desktop/docs/updates.md).
-2. `web_base_url`: Specifies the Element Web URL when performing actions such as popout widget. Defaults to `https://app.element.io/`.
+2. `disable_auto_update`: When `true`, suppresses desktop auto-update even if `update_base_url` is present.
+3. `web_base_url`: Specifies the Element Web URL when performing actions such as popout widget. Defaults to `https://app.element.io/`.
 
 ---
 

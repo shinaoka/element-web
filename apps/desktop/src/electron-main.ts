@@ -424,6 +424,8 @@ app.on("ready", async () => {
     // Minimist parses `--no-`-prefixed arguments as booleans with value `false` rather than verbatim.
     if (argv["update"] === false) {
         console.log("Auto update disabled via command line flag");
+    } else if (global.vectorConfig.disable_auto_update) {
+        console.log("Auto update disabled via config");
     } else if (global.vectorConfig["update_base_url"]) {
         void updater.start(global.vectorConfig["update_base_url"]);
     } else {

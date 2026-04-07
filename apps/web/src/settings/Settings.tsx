@@ -1254,7 +1254,7 @@ export const SETTINGS: Settings = {
     "tokenizerMode": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
         displayName: _td("settings|security|tokenizer_mode"),
-        default: "language",
+        default: "ngram",
     },
     "showCallButtonsInComposer": {
         // Dev note: This is no longer "in composer" but is instead "in room header".
